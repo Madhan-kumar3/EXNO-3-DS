@@ -31,280 +31,51 @@ We use this categorical data encoding technique when the features are nominal(do
 • Yeojohnson method
 
 # CODING AND OUTPUT:
-      
-
-```python 
+```
 import pandas as pd
-df=pd.read_csv('/content/Encoding Data.csv')
-df
+from sklearn.preprocessing import OrdinalEncoder, OneHotEncoder, PowerTransformer
+data = pd.read_csv('/content/Encoding Data.csv')
+data
 ```
-
-![alt text](<Screenshot 2024-09-24 113250.png>)
-
-
-```python 
-df.shape
-
+![image](https://github.com/user-attachments/assets/48a62523-6368-492c-8d80-1b689d32110e)
 ```
-![alt text](<Screenshot 2024-09-24 113340.png>)
+# binary encoding
+data['bin_1'] = data['bin_1'].map({'F': 0, 'T': 1})
+data['bin_2'] = data['bin_2'].map({'N': 0, 'Y': 1})
 
-
-```python 
-df.info()
-
-```
-
-![alt text](<Screenshot 2024-09-24 113350.png>)
-
-
-```python 
-from sklearn.preprocessing import LabelEncoder,OrdinalEncoder
-pm=['Hot','Warm','Cold']
-e1=OrdinalEncoder(categories=[pm])
-e1.fit_transform(df[['ord_2']])
-```
-
-![alt text](<Screenshot 2024-09-24 113402.png>)
-
-
-```python 
-df['bo_2']=e1.fit_transform(df[['ord_2']])
-df
+# Ordinal Encoding
+data['ord_2'] = data['ord_2'].astype(str)
+ordinal_encoder = OrdinalEncoder(categories=[['Cold', 'Warm', 'Hot']])
+data['ord_2'] = ordinal_encoder.fit_transform(data[['ord_2']])
+data
 
 ```
-
-![alt text](<Screenshot 2024-09-24 113416-1.png>)
-
-
-```python 
-le=LabelEncoder()
-dfc=df.copy()
-dfc['ord_2']=le.fit_transform(df['ord_2'])
-dfc
+![image](https://github.com/user-attachments/assets/10a04435-322d-4f57-9adf-d9d684487df0)
 ```
-
-![alt text](<Screenshot 2024-09-24 113416.png>)
-
-
-```python 
-dfc=df.copy()
-
+# One Hot Encoding for 'nom_0'
+one_hot_encoder = OneHotEncoder(sparse_output=False, drop='first')
+nom_0_encoded = one_hot_encoder.fit_transform(data[['nom_0']])
+nom_0_encoded_df = pd.DataFrame(nom_0_encoded, columns=one_hot_encoder.get_feature_names_out(['nom_0']))
+data = pd.concat([data, nom_0_encoded_df], axis=1).drop('nom_0', axis=1)
+data
 ```
-
-
-```python 
-dfc['con_2']=le.fit_transform(df['ord_2'])
-dfc
+![image](https://github.com/user-attachments/assets/871e4813-449c-491a-bde0-92c1f3e437c5)
 ```
+# STEP 3: Apply Feature Transformation
+# Using PowerTransformer for normalizing numeric columns
+power_transformer = PowerTransformer(method='yeo-johnson')
+data[['bin_1', 'bin_2', 'ord_2']] = power_transformer.fit_transform(data[['bin_1', 'bin_2', 'ord_2']])
 
-
-![alt text](<Screenshot 2024-09-24 113512.png>)
-
-```python 
-from sklearn.preprocessing import OneHotEncoder
-ohe=OneHotEncoder(sparse_output=False)
-df2=df.copy()
-enc=pd.DataFrame(ohe.fit_transform(df2[['nom_0']]))
-df2=pd.concat([df2,enc],axis=1)
-df2
+data
 ```
-
-![alt text](<Screenshot 2024-09-24 113809.png>)
-
-```python 
-pd.get_dummies(df2,columns=['nom_0'])
-
+![image](https://github.com/user-attachments/assets/85e8ee35-c4eb-4c46-81f8-cd1cb8875946)
 ```
-
-![alt text](<Screenshot 2024-09-24 113825.png>)
-
-
-```python 
-
-pip install --upgrade category_encoders
+# STEP 4: Save the processed data to a file
+output_path = '/mnt/data/Processed_Encoding_Data.csv'
+data.to_csv(output_path, index=False)
 ```
-
-
-
-```python 
-
-from category_encoders import BinaryEncoder
-```
-
-
-
-```python 
-df=pd.read_csv('/content/data.csv')
-df
-
-```
-![alt text](<Screenshot 2024-09-24 114309.png>)
-
-
-```python 
-be=BinaryEncoder()
-nd=be.fit_transform(df['Ord_2'])
-dfb=pd.concat([df,nd],axis=1)
-sfb1=df.copy()
-dfb
-```
-![alt text](<Screenshot 2024-09-24 114338.png>)
-
-
-
-```python 
-from category_encoders import TargetEncoder
-
-```
-
-
-
-```python 
-te=TargetEncoder()
-cc=df.copy()
-new = te.fit_transform(X=cc["City"],y=cc["Target"])
-
-```
-
-
-```python 
-cc=pd.concat([cc,new],axis=1)
-cc
-
-```
-![alt text](<Screenshot 2024-09-24 114618.png>)
-
-
-```python 
-import pandas as pd
-from scipy import stats
-import numpy as np
-
-```
-
-
-
-```python 
-df=pd.read_csv('/content/Data_to_Transform.csv')
-df
-
-```
-![alt text](<Screenshot 2024-10-01 084800.png>)
-
-
-```python 
-df.shape
-
-```
-![alt text](<Screenshot 2024-10-01 084827.png>)
-
-
-```python 
-
-df.skew()
-```
-![alt text](<Screenshot 2024-10-01 084851.png>)
-
-```python 
-np.log(df['Highly Positive Skew'])
-
-```
-![alt text](<Screenshot 2024-10-01 084859.png>)
-
-```python 
-np.reciprocal(df['Moderate Negative Skew'])
-
-```
-
-![alt text](<Screenshot 2024-10-01 084913.png>)
-
-```python 
-np.sqrt(df['Highly Positive Skew'])
-
-```
-
-![alt text](<Screenshot 2024-10-01 085406.png>)
-
-```python 
-df.skew()
-
-```
-
-![alt text](<Screenshot 2024-10-01 085415.png>)
-
-```python 
-df['Highly Positive Skew']=np.sqrt(df['Highly Positive Skew'])
-df
-
-```
-
-![alt text](<Screenshot 2024-10-01 085428.png>)
-
-
-```python 
-df.skew()
-
-```
-
-![alt text](<Screenshot 2024-10-01 085449.png>)
-
-```python 
-df['Highly Positive Skew_boxcox'],parameters=stats.boxcox(df['Highly Positive Skew'])
-df
-```
-
-
-![alt text](<Screenshot 2024-10-01 085504.png>)
-
-```python 
-df['Moderate Negative Skew_yeojohnson'],parameters=stats.yeojohnson(df['Moderate Negative Skew'])
-df
-```
-
-![alt text](<Screenshot 2024-10-01 085534.png>)
-
-```python 
-import seaborn as sns
-import statsmodels.api as sm
-import matplotlib.pyplot as plt
-
-```
-
-
-```python 
-
-sm.qqplot(df['Moderate Negative Skew'],line='45')
-plt.show()
-```
-
-![alt text](<Screenshot 2024-10-01 085550.png>)
-
-```python 
-sm.qqplot(np.reciprocal(df['Moderate Negative Skew']),line='45')
-plt.show()
-
-```
-![alt text](<Screenshot 2024-10-01 085612.png>)
-
-```python 
-from sklearn.preprocessing import QuantileTransformer
-qt=QuantileTransformer(output_distribution='normal',n_quantiles=891)
-
-```
-
-
-```python 
-df['Moderate Negative Skew']=qt.fit_transform(df[['Moderate Negative Skew']])
-
-```
-
-```python 
-sm.qqplot(df['Moderate Negative Skew'],line='45')
-plt.show()
-
-```
-![alt text](<Screenshot 2024-10-01 085624.png>)
-
 # RESULT:
-   Thus Feature encodind and transformation process is performed on the given data.
+
+Thus the program to read the given data and perform Feature Encoding and Transformation process and save the data to a file is successfully executed
+
        
